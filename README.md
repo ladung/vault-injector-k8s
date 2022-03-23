@@ -30,6 +30,8 @@ helm repo add helm-cmc https://nexus.io/repository/helm-cmc/ --username dev --pa
 helm package deploy
 curl -is -u 'dung':'pass' https://nexus.io/repository/helm-cmc/ --upload-file cmc.tgz
 ```
+- test:
+```helm template test helm-cmc/cmc-app -f k8s/values.yml```
 # Reference
 - https://devopscube.com/vault-agent-injector-tutorial/
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault?in=vault/kubernetes
