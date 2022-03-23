@@ -30,3 +30,5 @@ helm repo add helm-cmc https://nexus.io/repository/helm-cmc/ --username dev --pa
 helm package deploy
 curl -is -u 'dung':'pass' https://nexus.io/repository/helm-cmc/ --upload-file cmc.tgz
 ```
+# Reference
+https://devopscube.com/vault-agent-injector-tutorial/
