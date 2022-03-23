@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  cmc-app:
+  - apiVersion: v2
+    appVersion: 1.19.0
+    created: "2022-02-15T09:31:17.399031486+07:00"
+    description: A Helm chart for cmc app
+    digest: 8545f2426e0cc98d6ff2ef5f366339a53e1df9f6e103fe5a063bbdef8538a55a
+    name: cmc-app
+    type: application
+    urls:
+    - http://nexus.api-connect.io/repository/helm-cmc/cmc-app-0.2.3.tgz
+    version: 0.1.0
+generated: "2022-02-15T09:31:17.397493704+07:00"

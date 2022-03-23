@@ -1,0 +1,114 @@
+# # Default values for deploy.
+# # This is a YAML-formatted file.
+# # Declare variables to be passed into your templates.
+
+# replicaCount: 1
+
+# image:
+#   repository: nginx
+#   pullPolicy: IfNotPresent
+#   # Overrides the image tag whose default is the chart appVersion.
+#   tag: ""
+
+replicaCount: 1
+deploy: 
+  deploymentAnnotations: 
+    vault.hashicorp.com/agent-inject: 'true'
+    vault.hashicorp.com/role: 'devweb-app'
+    vault.hashicorp.com/agent-pre-populate-only: 'true'
+    vault.hashicorp.com/agent-inject-secret-config: 'env/my-secret'
+    vault.hashicorp.com/agent-inject-template-config: |
+      {{ with secret "env/my-secret" -}}
+      export username="{{ .Data.data.username }}"
+      export password="{{ .Data.data.password }}"
+      {{- end }}
+
+  application:
+    name: cmc-app
+    namespace: dungla
+    port: 3000
+
+  images: 
+    name: nginx
+    tag: latest
+    repogistory: nexus.api-connect.io
+    pullPolicy: Always
+    pullSecret: nexus-docker-secret
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+        cpu: 100m
+        memory: 128Mi
+  command: []
+    # - /bin/sh
+  args: []
+    # - -c
+    # - source /vault/secrets/config
+    # - echo $username && sleep 100000000
+nodeSelector:
+  environment: dev
+  role: apps
+serviceaccount: 
+  serviceAccountName: internal-app
+
+service:
+  type: ClusterIP
+  port: 80
+
+
+ingress:
+  enabled: true
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: cmctelecom.com.vn
+      path: /
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+livenessProbe:
+  enabled: true
+  path: /status
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+  timeoutSeconds: 5
+
+readinessProbe:
+  enabled: true
+  path: /status
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 5
+  timeoutSeconds: 5
+
+deploymentStrategy: 
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+  type: RollingUpdate
+volume:
+  enabled: false
+  extraVolumes: 
+    # - name: example-name
+    #   hostPath:
+    #     path: /path/on/host
+    #     type: DirectoryOrCreate
+
+# Any extra volume mounts to define for the Traefik container
+  extraVolumeMounts: {}
+  # - name: example-name
+  #   mountPath: /path/in/container

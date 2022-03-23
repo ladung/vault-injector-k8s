@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: application
+metadata:
+  name:  {{ .Values.application.name }}
+  namespace: {{ .Values.application.namespace }}
+  labels:
+    name:  {{ .Values.application.name }}
+    app: {{ .Values.application.name }}
+spec:
+  {{- if .Values.deploymentStrategy }}
+  strategy:
+{{ toYaml .Values.deploymentStrategy | indent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.application.name }}
+  template:
+    metadata:
+      labels:
+        name:  {{ .Values.application.name }}
+        app: {{ .Values.application.name }}
+    spec:
+      containers:
+      - image: {{ .Values.images.repogistory }}/{{ .Values.images.name }}:{{ .Values.images.tag }}
+        name:  {{ .Values.application.name }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.application.name }}
+{{- if .Values.livenessProbe.enabled }}
+        livenessProbe: 
+          httpGet:
+            path: {{ .Values.livenessProbe.path }}
+            port: {{ .Values.application.port }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+{{ end }}
+{{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessProbe.path }}
+            port: {{ .Values.application.port }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+{{- end }}        
+        resources: 
+{{- toYaml .Values.resources | nindent 10 }}
+{{- if .Values.volume.enabled }}
+        volumeMounts:
+        {{- if .Values.volume.extraVolumeMounts }}{{ toYaml .Values.volume.extraVolumeMounts | trim | nindent 10 }}{{ end }}
+{{- end }}
+        ports:
+        - containerPort:  {{ .Values.application.port }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+      nodeSelector:
+        environment: {{ .Values.nodeSelector.environment }}
+        role: apps
+{{- if .Values.volume.enabled }}
+      volumes:
+      {{- if .Values.volume.extraVolumes  }}{{ toYaml .Values.volume.extraVolumes | trim | nindent 8 }}{{ end }}
+{{- end }}
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecret }}
+      restartPolicy: Always
