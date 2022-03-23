@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    field.cattle.io/publicEndpoints: '[{"addresses":["119.82.130.17"],"port":32224,"protocol":"TCP","serviceName":"dungla:mynginx","allNodes":true}]'
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"web"},"name":"web-deployment","namespace":"dungla"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"web"}},"template":{"metadata":{"annotations":{"vault.hashicorp.com/agent-inject":"true","vault.hashicorp.com/agent-inject-secret-config":"env/my-secret","vault.hashicorp.com/agent-inject-template-config":"{{ with secret \"data/my-secret\" -}}\nusername=\"{{ .Data.data.username }}\"\npassword=\"{{ .Data.data.password }}\"\n{{- end }}\n","vault.hashicorp.com/role":"devweb-app"},"labels":{"app":"web"}},"spec":{"containers":[{"args":["sh","-c","source /vault/secrets/config"],"image":"alpine:latest","name":"web","ports":[{"containerPort":9090}]}],"serviceAccountName":"internal-app"}}}}
+  creationTimestamp: "2021-11-15T13:34:46Z"
+  generation: 2
+  labels:
+    app: web
+  name: web-deployment
+  namespace: dungla
+  resourceVersion: "173014751"
+  selfLink: /apis/apps/v1/namespaces/dungla/deployments/web-deployment
+  uid: 526d8d2a-5cda-45c1-af47-316b0379ebbf
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: web
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-config: env/my-secret
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{ with secret "data/my-secret" -}}
+          username="{{ .Data.data.username }}"
+          password="{{ .Data.data.password }}"
+          {{- end }}
+        vault.hashicorp.com/role: devweb-app
+      creationTimestamp: null
+      labels:
+        app: web
+    spec:
+      containers:
+      - args:
+        - sh
+        - -c
+        - source /vault/secrets/config
+        image: alpine:latest
+        imagePullPolicy: Always
+        name: web
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: internal-app
+      serviceAccountName: internal-app
+      terminationGracePeriodSeconds: 30
+status:
+  conditions:
+  - lastTransitionTime: "2021-11-15T13:34:46Z"
+    lastUpdateTime: "2021-11-15T13:34:46Z"
+    message: Deployment does not have minimum availability.
+    reason: MinimumReplicasUnavailable
+    status: "False"
+    type: Available
+  - lastTransitionTime: "2021-11-15T13:34:46Z"
+    lastUpdateTime: "2021-11-15T13:34:46Z"
+    message: ReplicaSet "web-deployment-5458fd95c4" is progressing.
+    reason: ReplicaSetUpdated
+    status: "True"
+    type: Progressing
+  observedGeneration: 2
+  replicas: 1
+  unavailableReplicas: 1
+  updatedReplicas: 1

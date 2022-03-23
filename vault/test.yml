@@ -1,0 +1,239 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cni.projectcalico.org/podIP: 10.42.2.86/32
+    cni.projectcalico.org/podIPs: 10.42.2.86/32
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/agent-inject-secret-config: env/my-secret
+    vault.hashicorp.com/agent-inject-status: injected
+    vault.hashicorp.com/agent-inject-template-config: |
+      {{ with secret "env/my-secret" -}}
+      export username="{{ .Data.data.username }}"
+      export password="{{ .Data.data.password }}"
+      {{- end }}
+    vault.hashicorp.com/role: devweb-app
+  creationTimestamp: "2021-11-15T14:00:40Z"
+  generateName: web-deployment-7ccdd4d7f5-
+  labels:
+    app: web
+    pod-template-hash: 7ccdd4d7f5
+  name: web-deployment-7ccdd4d7f5-nw6x7
+  namespace: dungla
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: web-deployment-7ccdd4d7f5
+    uid: bdbcb417-d615-4005-a8c8-d88f13c9dbeb
+  resourceVersion: "173029225"
+  selfLink: /api/v1/namespaces/dungla/pods/web-deployment-7ccdd4d7f5-nw6x7
+  uid: d607a6cb-419a-49de-a6aa-1162f9931822
+spec:
+  containers:
+  - args:
+    - sh
+    - -c
+    - source /vault/secrets/config
+    image: alpine:latest
+    imagePullPolicy: Always
+    name: web
+    ports:
+    - containerPort: 9090
+      protocol: TCP
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: internal-app-token-sxdvq
+      readOnly: true
+    - mountPath: /vault/secrets
+      name: vault-secrets
+  - args:
+    - echo ${VAULT_CONFIG?} | base64 -d > /home/vault/config.json && vault agent -config=/home/vault/config.json
+    command:
+    - /bin/sh
+    - -ec
+    env:
+    - name: VAULT_LOG_LEVEL
+      value: info
+    - name: VAULT_LOG_FORMAT
+      value: standard
+    - name: VAULT_CONFIG
+      value: eyJhdXRvX2F1dGgiOnsibWV0aG9kIjp7InR5cGUiOiJrdWJlcm5ldGVzIiwibW91bnRfcGF0aCI6ImF1dGgva3ViZXJuZXRlcyIsImNvbmZpZyI6eyJyb2xlIjoiZGV2d2ViLWFwcCIsInRva2VuX3BhdGgiOiIvdmFyL3J1bi9zZWNyZXRzL2t1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvdG9rZW4ifX0sInNpbmsiOlt7InR5cGUiOiJmaWxlIiwiY29uZmlnIjp7InBhdGgiOiIvaG9tZS92YXVsdC8udmF1bHQtdG9rZW4ifX1dfSwiZXhpdF9hZnRlcl9hdXRoIjpmYWxzZSwicGlkX2ZpbGUiOiIvaG9tZS92YXVsdC8ucGlkIiwidmF1bHQiOnsiYWRkcmVzcyI6Imh0dHBzOi8vdmF1bHQuYXBpLWNvbm5lY3QuaW8vIn0sInRlbXBsYXRlIjpbeyJkZXN0aW5hdGlvbiI6Ii92YXVsdC9zZWNyZXRzL2NvbmZpZyIsImNvbnRlbnRzIjoie3sgd2l0aCBzZWNyZXQgXCJlbnYvbXktc2VjcmV0XCIgLX19XG5leHBvcnQgdXNlcm5hbWU9XCJ7eyAuRGF0YS5kYXRhLnVzZXJuYW1lIH19XCJcbmV4cG9ydCBwYXNzd29yZD1cInt7IC5EYXRhLmRhdGEucGFzc3dvcmQgfX1cIlxue3stIGVuZCB9fVxuIiwibGVmdF9kZWxpbWl0ZXIiOiJ7eyIsInJpZ2h0X2RlbGltaXRlciI6In19In1dLCJ0ZW1wbGF0ZV9jb25maWciOnsiZXhpdF9vbl9yZXRyeV9mYWlsdXJlIjp0cnVlfX0=
+    image: hashicorp/vault:1.8.4
+    imagePullPolicy: IfNotPresent
+    lifecycle: {}
+    name: vault-agent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 250m
+        memory: 64Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+      runAsGroup: 1000
+      runAsNonRoot: true
+      runAsUser: 100
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: internal-app-token-sxdvq
+      readOnly: true
+    - mountPath: /home/vault
+      name: home-sidecar
+    - mountPath: /vault/secrets
+      name: vault-secrets
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  initContainers:
+  - args:
+    - echo ${VAULT_CONFIG?} | base64 -d > /home/vault/config.json && vault agent -config=/home/vault/config.json
+    command:
+    - /bin/sh
+    - -ec
+    env:
+    - name: VAULT_LOG_LEVEL
+      value: info
+    - name: VAULT_LOG_FORMAT
+      value: standard
+    - name: VAULT_CONFIG
+      value: eyJhdXRvX2F1dGgiOnsibWV0aG9kIjp7InR5cGUiOiJrdWJlcm5ldGVzIiwibW91bnRfcGF0aCI6ImF1dGgva3ViZXJuZXRlcyIsImNvbmZpZyI6eyJyb2xlIjoiZGV2d2ViLWFwcCIsInRva2VuX3BhdGgiOiIvdmFyL3J1bi9zZWNyZXRzL2t1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvdG9rZW4ifX0sInNpbmsiOlt7InR5cGUiOiJmaWxlIiwiY29uZmlnIjp7InBhdGgiOiIvaG9tZS92YXVsdC8udmF1bHQtdG9rZW4ifX1dfSwiZXhpdF9hZnRlcl9hdXRoIjp0cnVlLCJwaWRfZmlsZSI6Ii9ob21lL3ZhdWx0Ly5waWQiLCJ2YXVsdCI6eyJhZGRyZXNzIjoiaHR0cHM6Ly92YXVsdC5hcGktY29ubmVjdC5pby8ifSwidGVtcGxhdGUiOlt7ImRlc3RpbmF0aW9uIjoiL3ZhdWx0L3NlY3JldHMvY29uZmlnIiwiY29udGVudHMiOiJ7eyB3aXRoIHNlY3JldCBcImVudi9teS1zZWNyZXRcIiAtfX1cbmV4cG9ydCB1c2VybmFtZT1cInt7IC5EYXRhLmRhdGEudXNlcm5hbWUgfX1cIlxuZXhwb3J0IHBhc3N3b3JkPVwie3sgLkRhdGEuZGF0YS5wYXNzd29yZCB9fVwiXG57ey0gZW5kIH19XG4iLCJsZWZ0X2RlbGltaXRlciI6Int7IiwicmlnaHRfZGVsaW1pdGVyIjoifX0ifV0sInRlbXBsYXRlX2NvbmZpZyI6eyJleGl0X29uX3JldHJ5X2ZhaWx1cmUiOnRydWV9fQ==
+    image: hashicorp/vault:1.8.4
+    imagePullPolicy: IfNotPresent
+    name: vault-agent-init
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 250m
+        memory: 64Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+      runAsGroup: 1000
+      runAsNonRoot: true
+      runAsUser: 100
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /home/vault
+      name: home-init
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: internal-app-token-sxdvq
+      readOnly: true
+    - mountPath: /vault/secrets
+      name: vault-secrets
+  nodeName: 119.82.135.161
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: internal-app
+  serviceAccountName: internal-app
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: internal-app-token-sxdvq
+    secret:
+      defaultMode: 420
+      secretName: internal-app-token-sxdvq
+  - emptyDir:
+      medium: Memory
+    name: home-init
+  - emptyDir:
+      medium: Memory
+    name: home-sidecar
+  - emptyDir:
+      medium: Memory
+    name: vault-secrets
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2021-11-15T14:00:40Z"
+    message: 'containers with incomplete status: [vault-agent-init]'
+    reason: ContainersNotInitialized
+    status: "False"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2021-11-15T14:00:40Z"
+    message: 'containers with unready status: [web vault-agent]'
+    reason: ContainersNotReady
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2021-11-15T14:00:40Z"
+    message: 'containers with unready status: [web vault-agent]'
+    reason: ContainersNotReady
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2021-11-15T14:00:40Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - image: hashicorp/vault:1.8.4
+    imageID: ""
+    lastState: {}
+    name: vault-agent
+    ready: false
+    restartCount: 0
+    started: false
+    state:
+      waiting:
+        reason: PodInitializing
+  - image: alpine:latest
+    imageID: ""
+    lastState: {}
+    name: web
+    ready: false
+    restartCount: 0
+    started: false
+    state:
+      waiting:
+        reason: PodInitializing
+  hostIP: 10.11.0.224
+  initContainerStatuses:
+  - containerID: docker://fe9f2cdc35f774b632b5e0f6940da7edf5e2c0b89ecb9919925d3d6958b3ebc0
+    image: hashicorp/vault:1.8.4
+    imageID: docker-pullable://hashicorp/vault@sha256:dfc3500beb0e0c4a0c9f9ffb3fb77f8ca6382583f4f75f7197f2dae3626efece
+    lastState:
+      terminated:
+        containerID: docker://6479c12c92e273bed2f2eeeab5498d17a7341c4f1add757ec0374de02ff9773c
+        exitCode: 1
+        finishedAt: "2021-11-15T14:27:40Z"
+        reason: Error
+        startedAt: "2021-11-15T14:22:36Z"
+    name: vault-agent-init
+    ready: false
+    restartCount: 5
+    state:
+      running:
+        startedAt: "2021-11-15T14:29:08Z"
+  phase: Pending
+  podIP: 10.42.2.86
+  podIPs:
+  - ip: 10.42.2.86
+  qosClass: Burstable
+  startTime: "2021-11-15T14:00:40Z"

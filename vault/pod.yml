@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  labels:
+    app: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'devweb-app'
+        vault.hashicorp.com/agent-pre-populate-only: 'true'
+        vault.hashicorp.com/agent-inject-secret-config: 'env/my-secret'
+        # Environment variable export template
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{ with secret "env/my-secret" -}}
+          export username="{{ .Data.data.username }}"
+          export password="{{ .Data.data.password }}"
+          {{- end }}
+    spec:
+      serviceAccountName: internal-app
+      containers:
+        - name: web
+          image: alpine:latest
+          command: ["/bin/sh"]
+          args: ['-c', 'source /vault/secrets/config && echo $username && sleep 100000000']
+          ports:
+            - containerPort: 9090

@@ -1,0 +1,6 @@
+# This is created here so it can be cleaned up easily.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-injector-certs

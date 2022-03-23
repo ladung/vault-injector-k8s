@@ -1,0 +1,28 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: vault-agent-injector-cfg
+  labels:
+    app.kubernetes.io/name: vault-injector
+    app.kubernetes.io/instance: vault
+webhooks:
+  - name: vault.hashicorp.com
+    sideEffects: None
+    admissionReviewVersions:
+      - "v1"
+      - "v1beta1"
+    clientConfig:
+      service:
+        name: vault-agent-injector-svc
+        path: "/mutate"
+        namespace: "logging-dev"
+      caBundle: ""
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["deployments", "jobs", "pods", "statefulsets"]
+    namespaceSelector: {}
+    objectSelector: {}
+    failurePolicy: Ignore
