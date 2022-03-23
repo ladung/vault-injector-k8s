@@ -24,3 +24,9 @@ policies=devwebapp \
 ttl=24h
 
 ```
+# helm cmc app
+```
+helm repo add helm-cmc https://nexus.io/repository/helm-cmc/ --username dev --password '2'
+helm package deploy
+curl -is -u 'dung':'pass' https://nexus.io/repository/helm-cmc/ --upload-file cmc.tgz
+```
