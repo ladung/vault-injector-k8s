@@ -55,3 +55,5 @@ curl -is -u 'dung':'pass' https://nexus.io/repository/helm-cmc/ --upload-file cm
 # Reference
 - https://devopscube.com/vault-agent-injector-tutorial/
 - https://learn.hashicorp.com/tutorials/vault/kubernetes-external-vault?in=vault/kubernetes
+- https://www.vaultproject.io/docs/auth/kubernetes#discovering-the-service-account-issuer
+- lỗi: https://github.com/hashicorp/vault-helm/issues/562
