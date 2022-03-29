@@ -24,6 +24,26 @@ policies=devwebapp \
 ttl=24h
 
 ```
+
+# Đối với kubenetes version 1.21+ 
+- vault write auth/kubernetes/config \         
+token_reviewer_jwt="$TOKEN_REVIEW_JWT" \  
+kubernetes_host="$KUBE_HOST" \           
+kubernetes_ca_cert="$KUBE_CA_CERT" \
+issuer="https://container.googleapis.com/v1/projects/cmc-lab/locations/asia-southeast1-a/clusters/dungla-test-vault-01"
+
+*issuser là trường iss trong đoạn sau:*
+```
+kubectl proxy &                   
+curl --silent http://127.0.0.1:8001/api/v1/namespaces/default/serviceaccounts/default/token \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"apiVersion": "authentication.k8s.io/v1", "kind": "TokenRequest"}' \
+  | jq -r '.status.token' \
+  | cut -d . -f2 \
+  | base64 -d
+```
+
 # helm cmc app
 ```
 helm repo add helm-cmc https://nexus.io/repository/helm-cmc/ --username dev --password '2'
