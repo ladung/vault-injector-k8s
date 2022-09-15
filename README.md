@@ -24,6 +24,9 @@ policies=devwebapp \
 ttl=24h
 
 ```
+# Multiple K8s cluster with vault agent
+```helm install vault hashicorp/vault --set "injector.externalVaultAddr=https://vault.domain.io/" --set "injector.authPath=auth/prod-cluster"```
+
 
 # Đối với kubenetes version 1.21+ 
 - vault write auth/kubernetes/config \         
