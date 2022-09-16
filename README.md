@@ -25,15 +25,24 @@ ttl=24h
 
 ```
 # Multiple K8s cluster with vault agent
-```helm install vault hashicorp/vault --set "injector.externalVaultAddr=https://vault.domain.io/" --set "injector.authPath=auth/prod-cluster"```
+```
+#  helm install vault hashicorp/vault --set "injector.externalVaultAddr=https://vault.domain.io/" --set "injector.authPath=auth/prod-cluster"
+#  vault auth enable --path prod-copen kubernetes
+#  vault write auth/dev-cluster/role/devweb-app \
+bound_service_account_names="*" \
+bound_service_account_namespaces="*" \
+policies=devwebapp \
+ttl=24h
+```
 
 
 # Đối với kubenetes version 1.21+ 
-- vault write auth/kubernetes/config \         
+```vault write auth/kubernetes/config \         
 token_reviewer_jwt="$TOKEN_REVIEW_JWT" \  
 kubernetes_host="$KUBE_HOST" \           
 kubernetes_ca_cert="$KUBE_CA_CERT" \
 issuer="https://container.googleapis.com/v1/projects/cmc-lab/locations/asia-southeast1-a/clusters/dungla-test-vault-01"
+```
 
 *issuser là trường iss trong đoạn sau:*
 ```
