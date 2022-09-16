@@ -13,11 +13,11 @@ path "secret/env/my-secret/*" {
 capabilities = ["read","list"]
 }
 EOF
-- vault write auth/kubernetes/config \         
+# vault write auth/kubernetes/config \         
 token_reviewer_jwt="$TOKEN_REVIEW_JWT" \  
 kubernetes_host="$KUBE_HOST" \                
 kubernetes_ca_cert="$KUBE_CA_CERT"
-- vault write auth/kubernetes/role/devweb-app \
+# vault write auth/kubernetes/role/devweb-app \
 bound_service_account_names=internal-app \
 bound_service_account_namespaces= \
 policies=devwebapp \              
